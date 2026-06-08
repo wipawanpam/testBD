@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base target="_top">
+<title>BD Tracker 2026</title>
+</head>
+<body>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1017;--bg2:#12161f;--panel:#161b26;--panel2:#1b2230;--line:#28324a;
+  --ink:#e9eef6;--muted:#93a3ba;--faint:#62728a;
+  --brand:#2e6fe0;--tr:#10b6ff;--wz:#ec1c2d;
+  --income:#34d399;--expense:#fb7185;--cash:#38bdf8;--barter:#f5a623;
+  --good:#34d399;--warn:#fbbf24;
+  --font-d:'Kanit',system-ui,sans-serif;--font-b:'Sarabun',system-ui,sans-serif;
+}
+#bdapp{font-family:var(--font-b);color:var(--ink);--glow:46,111,224;background:
+  radial-gradient(1100px 540px at 12% -8%,rgba(var(--glow),.16),transparent 60%),
+  radial-gradient(880px 520px at 100% -5%,rgba(var(--glow),.09),transparent 55%),
+  var(--bg);min-height:100vh;padding:0 0 60px;line-height:1.45;-webkit-font-smoothing:antialiased;transition:background .5s}
+#bdapp .wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+/* top bar */
+#bdapp .top{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);
+  background:linear-gradient(180deg,rgba(13,16,23,.92),rgba(13,16,23,.72));
+  border-bottom:1px solid var(--line)}
+#bdapp .top .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+#bdapp .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-d);font-weight:700;font-size:19px;letter-spacing:.3px}
+#bdapp .logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px;
+  background:linear-gradient(135deg,var(--brand),var(--wz));box-shadow:0 6px 18px rgba(46,111,224,.42);color:#fff}
+#bdapp .brand small{display:block;font-family:var(--font-b);font-weight:500;color:var(--faint);font-size:11px;letter-spacing:.5px}
+#bdapp .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;gap:3px}
+#bdapp .seg button{font-family:var(--font-d);font-weight:600;font-size:13.5px;color:var(--muted);background:none;border:0;
+  padding:8px 15px;border-radius:9px;cursor:pointer;transition:.18s;white-space:nowrap}
+#bdapp .seg button:hover{color:var(--ink)}
+#bdapp .seg button.on{color:#fff;background:var(--brand)}
+#bdapp .seg.games button.on[data-g="all"]{background:linear-gradient(135deg,var(--brand),var(--wz));color:#fff}
+#bdapp .seg.games button.on[data-g="Tales Runner"]{background:var(--tr);color:#fff}
+#bdapp .seg.games button.on[data-g="WarZ"]{background:var(--wz);color:#fff}
+#bdapp .spacer{flex:1}
+/* views */
+#bdapp .view{display:none;animation:rise .4s ease both}
+#bdapp .view.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#bdapp .scopebar{display:flex;align-items:center;gap:10px;margin:22px 0 14px}
+#bdapp .scopebar h2{font-family:var(--font-d);font-weight:600;font-size:17px}
+#bdapp .chip{font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+#bdapp .chip.tr{color:var(--tr);border-color:rgba(16,182,255,.45);background:rgba(16,182,255,.10)}
+#bdapp .chip.wz{color:var(--wz);border-color:rgba(236,28,45,.45);background:rgba(236,28,45,.10)}
+#bdapp .chip.all{color:#7fb0ff;border-color:rgba(46,111,224,.45);background:rgba(46,111,224,.12)}
+/* cards */
+#bdapp .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+#bdapp .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);
+  border-radius:16px;padding:16px 16px 15px;position:relative;overflow:hidden;animation:rise .5s ease both}
+#bdapp .card::after{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--brand);opacity:.85}
+#bdapp .card.inc::after{background:var(--income)}#bdapp .card.exp::after{background:var(--expense)}
+#bdapp .card.bal::after{background:var(--brand)}#bdapp .card.cash::after{background:var(--cash)}
+#bdapp .card.barter::after{background:var(--barter)}#bdapp .card.warn::after{background:var(--warn)}
+#bdapp .card .k{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.2px}
+#bdapp .card .v{font-family:var(--font-d);font-weight:700;font-size:25px;margin-top:9px;letter-spacing:.3px}
+#bdapp .card .v small{font-size:14px;color:var(--faint);font-weight:500;font-family:var(--font-b)}
+#bdapp .card .sub{font-size:11.5px;color:var(--faint);margin-top:4px}
+/* buttons / actions */
+#bdapp .actions{display:flex;gap:11px;margin:18px 0 6px;flex-wrap:wrap}
+#bdapp .btn{font-family:var(--font-d);font-weight:600;font-size:14px;border:0;border-radius:12px;padding:12px 18px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:.18s;color:#06121c}
+#bdapp .btn.inc{background:linear-gradient(135deg,var(--income),#1f9e72)}
+#bdapp .btn.exp{background:linear-gradient(135deg,var(--expense),#d6485f);color:#fff}
+#bdapp .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.4)}
+#bdapp .btn.ghost{background:var(--panel);color:var(--muted);border:1px solid var(--line)}
+/* table / list */
+#bdapp .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-top:16px;overflow:hidden}
+#bdapp .panel .ph{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+#bdapp .panel .ph h3{font-family:var(--font-d);font-weight:600;font-size:15px}
+#bdapp table{width:100%;border-collapse:collapse;font-size:13.5px}
+#bdapp thead th{text-align:left;color:var(--faint);font-weight:600;font-size:11.5px;letter-spacing:.4px;text-transform:uppercase;
+  padding:11px 14px;background:var(--bg2)}
+#bdapp tbody td{padding:11px 14px;border-top:1px solid rgba(40,50,74,.6)}
+#bdapp tbody tr:hover{background:rgba(255,255,255,.02)}
+#bdapp td.r,th.r{text-align:right}
+#bdapp .tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block}
+#bdapp .tag.cash{color:var(--cash);background:rgba(56,189,248,.13)}
+#bdapp .tag.barter{color:var(--barter);background:rgba(245,166,35,.14)}
+#bdapp .tag.tr{color:var(--tr);background:rgba(16,182,255,.14)}
+#bdapp .tag.wz{color:var(--wz);background:rgba(236,28,45,.14)}
+#bdapp .tag.paid{color:var(--good);background:rgba(52,211,153,.14)}
+#bdapp .tag.unpaid{color:var(--warn);background:rgba(251,191,36,.14)}
+#bdapp .tag.out{color:var(--expense);background:rgba(251,113,133,.13)}
+#bdapp .del{background:none;border:1px solid var(--line);color:var(--faint);width:26px;height:26px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1}
+#bdapp .del:hover{color:var(--expense);border-color:var(--expense)}
+#bdapp .empty{padding:34px;text-align:center;color:var(--faint);font-size:13.5px}
+/* dashboard grid */
+#bdapp .dgrid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:16px}
+#bdapp .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+#bdapp .chartbox h3{font-family:var(--font-d);font-weight:600;font-size:14.5px;margin-bottom:14px}
+#bdapp .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--muted)}
+#bdapp .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+#bdapp .gamerow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid rgba(40,50,74,.5)}
+#bdapp .gamerow:first-of-type{border-top:0}
+#bdapp .barwrap{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:7px}
+#bdapp .barwrap i{display:block;height:100%;border-radius:99px}
+/* modal */
+#bdapp .ov{position:fixed;inset:0;background:rgba(5,8,13,.62);backdrop-filter:blur(4px);display:none;
+  place-items:center;z-index:90;padding:18px}
+#bdapp .ov.on{display:grid;animation:rise .25s ease both}
+#bdapp .modal{width:100%;max-width:440px;background:linear-gradient(165deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:18px;padding:22px}
+#bdapp .modal h3{font-family:var(--font-d);font-weight:600;font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+#bdapp .fld{margin-bottom:13px}
+#bdapp .fld label{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
+#bdapp .fld input,#bdapp .fld select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);
+  border-radius:10px;padding:11px 12px;font-family:var(--font-b);font-size:14px;outline:none;transition:.15s}
+#bdapp .fld input:focus,#bdapp .fld select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(46,111,224,.18)}
+#bdapp .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+#bdapp .mfoot{display:flex;gap:10px;margin-top:8px}
+#bdapp .mfoot .btn{flex:1;justify-content:center}
+#bdapp .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--good);
+  color:#04201c;font-family:var(--font-d);font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);opacity:0;transition:.3s;z-index:99}
+#bdapp .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:780px){
+  #bdapp .cards{grid-template-columns:repeat(2,1fr)}
+  #bdapp .dgrid{grid-template-columns:1fr}
+  #bdapp .hidem{display:none}
+  #bdapp .top .wrap{gap:10px}
+}
+</style>
+
+<div id="bdapp">
+  <div class="top"><div class="wrap">
+    <div class="brand"><span class="logo">▦</span><span>BD Tracker 2026<small>Business Development · รายรับ / รายจ่าย</small></span></div>
+    <div class="spacer"></div>
+    <div class="seg games" id="segGame">
+      <button data-g="all" class="on">ทั้งหมด</button>
+      <button data-g="Tales Runner">Tales Runner</button>
+      <button data-g="WarZ">WarZ</button>
+    </div>
+    <div class="seg" id="segView">
+      <button data-v="record" class="on">บันทึก</button>
+      <button data-v="dash">Dashboard</button>
+    </div>
+  </div></div>
+
+  <div class="wrap">
+    <!-- RECORD VIEW -->
+    <div class="view on" id="vRecord">
+      <div class="scopebar"><h2>ภาพรวม</h2><span class="chip all" id="scopeChip">ทั้งหมด</span></div>
+      <div class="cards" id="recCards"></div>
+      <div class="actions">
+        <button class="btn inc" onclick="BD.open('inc')">＋ บันทึกรายรับ</button>
+        <button class="btn exp" onclick="BD.open('exp')">－ บันทึกรายจ่าย</button>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>รายรับจาก Partner</h3><span class="chip" id="incCount"></span></div>
+        <div style="overflow-x:auto"><table id="incTable"></table></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>รายจ่าย</h3><span class="chip" id="expCount"></span></div>
+        <div style="overflow-x:auto"><table id="expTable"></table></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view" id="vDash">
+      <div class="scopebar"><h2>Dashboard ผู้บริหาร</h2><span class="chip all" id="scopeChip2">ทั้งหมด</span></div>
+      <div class="cards" id="dashCards"></div>
+      <div class="dgrid">
+        <div class="chartbox"><h3>รายรับ vs รายจ่าย แยกเกม</h3><div id="barChart"></div></div>
+        <div class="chartbox"><h3>สัดส่วน Cash vs Barter</h3><div id="donut" style="display:grid;place-items:center"></div>
+          <div class="legend"><span><i style="background:var(--cash)"></i>Cash</span><span><i style="background:var(--barter)"></i>Barter</span></div>
+        </div>
+      </div>
+      <div class="dgrid">
+        <div class="chartbox"><h3>สถานะการเก็บเงิน (Cash)</h3><div id="collect"></div></div>
+        <div class="chartbox"><h3>Partner สูงสุด</h3><div id="topPartners"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  var GAS = (typeof google!=='undefined' && google.script && google.script.run);
+  var SEED={income:[
+    {id:'I1',date:'2026-01-15',game:'Tales Runner',partner:'iHAVECPU',type:'Cash',amount:200000,status:'จ่ายแล้ว',note:'สปอนเซอร์หลัก (1st)'},
+    {id:'I2',date:'2026-01-20',game:'Tales Runner',partner:'P2W',type:'Cash',amount:200000,status:'จ่ายแล้ว',note:'1st (Ari Cat)'},
+    {id:'I3',date:'2026-02-10',game:'Tales Runner',partner:'EVNIA',type:'Cash',amount:30000,status:'ค้างจ่าย',note:'หลังจบงาน'},
+    {id:'I4',date:'2026-02-10',game:'Tales Runner',partner:'EVNIA',type:'Barter',amount:20000,status:'ค้างจ่าย',note:'มูลค่าสิ่งของ'},
+    {id:'I5',date:'2026-02-15',game:'Tales Runner',partner:'AMD',type:'Cash',amount:100000,status:'ค้างจ่าย',note:'หลังจบงาน'},
+    {id:'I6',date:'2026-01-25',game:'Tales Runner',partner:'เครมิล',type:'Cash',amount:100000,status:'จ่ายแล้ว',note:'1st'},
+    {id:'I7',date:'2026-03-05',game:'Tales Runner',partner:'EGA',type:'Cash',amount:25000,status:'จ่ายแล้ว',note:'1st'},
+    {id:'I8',date:'2026-03-05',game:'Tales Runner',partner:'EGA',type:'Barter',amount:30000,status:'จ่ายแล้ว',note:'ของรางวัล'},
+    {id:'I9',date:'2026-04-01',game:'Tales Runner',partner:'iHAVECPU',type:'Cash',amount:100000,status:'ค้างจ่าย',note:'PROLEAGUE'},
+    {id:'I10',date:'2026-04-10',game:'Tales Runner',partner:'P2W',type:'Cash',amount:200000,status:'ค้างจ่าย',note:'PROLEAGUE / MINI TOUR'},
+    {id:'I11',date:'2026-05-05',game:'WarZ',partner:'P2W',type:'Cash',amount:100000,status:'ค้างจ่าย',note:'WAR Z'}
+  ],expense:[
+    {id:'E1',date:'2026-03-20',game:'Tales Runner',item:'Tournament SOOP',amount:100000,note:'จัดทัวร์นาเมนต์'},
+    {id:'E2',date:'2026-02-28',game:'Tales Runner',item:'Tournament Ari Cat',amount:100000,note:'จัดทัวร์นาเมนต์'}
+  ]};
+
+  var api={
+    getAll:function(cb){ if(GAS){google.script.run.withSuccessHandler(cb).withFailureHandler(err).getAll();}else{cb(JSON.parse(JSON.stringify(SEED)));} },
+    addIncome:function(o,cb){ if(GAS){google.script.run.withSuccessHandler(cb).withFailureHandler(err).addIncome(o);}else{o.id='I'+Date.now();SEED.income.push(o);cb(JSON.parse(JSON.stringify(SEED)));} },
+    addExpense:function(o,cb){ if(GAS){google.script.run.withSuccessHandler(cb).withFailureHandler(err).addExpense(o);}else{o.id='E'+Date.now();SEED.expense.push(o);cb(JSON.parse(JSON.stringify(SEED)));} },
+    del:function(kind,id,cb){ if(GAS){google.script.run.withSuccessHandler(cb).withFailureHandler(err).deleteRow(kind,id);}else{var a=kind==='inc'?SEED.income:SEED.expense;for(var i=0;i<a.length;i++)if(a[i].id===id){a.splice(i,1);break;}cb(JSON.parse(JSON.stringify(SEED)));} }
+  };
+  function err(e){ alert('เกิดข้อผิดพลาด: '+(e&&e.message?e.message:e)); }
+
+  var data={income:[],expense:[]}, scope='all', view='record';
+  var fmt=function(n){return '฿'+Math.round(n||0).toLocaleString('th-TH');};
+  var inScope=function(g){return scope==='all'||g===scope;};
+  var gameClass=function(g){return g==='Tales Runner'?'tr':(g==='WarZ'?'wz':'all');};
+  var gameShort=function(g){return g==='Tales Runner'?'TR':(g==='WarZ'?'WarZ':g);};
+
+  function calc(items){
+    var inc=data.income.filter(function(x){return inScope(x.game);});
+    var exp=data.expense.filter(function(x){return inScope(x.game);});
+    var cash=sum(inc.filter(t=>t.type==='Cash')),barter=sum(inc.filter(t=>t.type==='Barter'));
+    var paid=sum(inc.filter(t=>t.type==='Cash'&&t.status==='จ่ายแล้ว'));
+    var unpaid=sum(inc.filter(t=>t.type==='Cash'&&t.status==='ค้างจ่าย'));
+    var spent=sum(exp);
+    return {inc:inc,exp:exp,cash:cash,barter:barter,total:cash+barter,paid:paid,unpaid:unpaid,spent:spent,
+      balance:cash-spent,rate:cash?paid/cash:0};
+  }
+  function sum(a){return a.reduce(function(s,x){return s+(+x.amount||0);},0);}
+
+  function render(){
+    document.getElementById('scopeChip').className='chip '+gameClass(scope);
+    document.getElementById('scopeChip2').className='chip '+gameClass(scope);
+    document.getElementById('scopeChip').textContent=scope==='all'?'ทั้งหมด':scope;
+    document.getElementById('scopeChip2').textContent=scope==='all'?'ทั้งหมด':scope;
+    var c=calc();
+    // record cards
+    document.getElementById('recCards').innerHTML=card('cash','รายรับ Cash',fmt(c.cash))+
+      card('barter','รายรับ Barter',fmt(c.barter))+
+      card('exp','รายจ่ายรวม',fmt(c.spent))+
+      card('bal','คงเหลือ (เงินสด)',fmt(c.balance));
+    // tables
+    document.getElementById('incCount').textContent=c.inc.length+' รายการ';
+    document.getElementById('expCount').textContent=c.exp.length+' รายการ';
+    document.getElementById('incTable').innerHTML=incTable(c.inc);
+    document.getElementById('expTable').innerHTML=expTable(c.exp);
+    // dashboard
+    document.getElementById('dashCards').innerHTML=card('inc','รายรับรวม',fmt(c.total),'Cash '+fmt(c.cash)+' · Barter '+fmt(c.barter))+
+      card('warn','ค้างรับ (Cash)',fmt(c.unpaid),'เก็บแล้ว '+(c.rate*100).toFixed(0)+'%')+
+      card('exp','รายจ่ายรวม',fmt(c.spent))+
+      card('bal','คงเหลือ (Money in Stock)',fmt(c.balance));
+    drawBars();drawDonut(c);drawCollect(c);drawTop();
+  }
+  function card(cl,k,v,sub){return '<div class="card '+cl+'"><div class="k">'+k+'</div><div class="v">'+v+'</div>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>';}
+
+  function incTable(rows){
+    if(!rows.length)return emptyRow(7,'ยังไม่มีรายรับ — กดปุ่ม “บันทึกรายรับ”');
+    var h='<thead><tr><th>วันที่</th><th class="hidem">เกม</th><th>Partner</th><th>ประเภท</th><th class="r">จำนวน</th><th>สถานะ</th><th></th></tr></thead><tbody>';
+    rows.slice().reverse().forEach(function(t){
+      h+='<tr><td>'+t.date+'</td><td class="hidem"><span class="tag '+gameClass(t.game)+'">'+gameShort(t.game)+'</span></td>'+
+        '<td><b>'+esc(t.partner)+'</b><div style="color:var(--faint);font-size:11.5px">'+esc(t.note||'')+'</div></td>'+
+        '<td><span class="tag '+(t.type==='Cash'?'cash':'barter')+'">'+t.type+'</span></td>'+
+        '<td class="r"><b>'+fmt(t.amount)+'</b></td>'+
+        '<td><span class="tag '+(t.status==='จ่ายแล้ว'?'paid':'unpaid')+'">'+t.status+'</span></td>'+
+        '<td class="r"><button class="del" onclick="BD.del(\'inc\',\''+t.id+'\')">✕</button></td></tr>';
+    });
+    return h+'</tbody>';
+  }
+  function expTable(rows){
+    if(!rows.length)return emptyRow(5,'ยังไม่มีรายจ่าย — กดปุ่ม “บันทึกรายจ่าย”');
+    var h='<thead><tr><th>วันที่</th><th class="hidem">เกม</th><th>รายการ</th><th class="r">จำนวน</th><th></th></tr></thead><tbody>';
+    rows.slice().reverse().forEach(function(t){
+      h+='<tr><td>'+t.date+'</td><td class="hidem"><span class="tag '+gameClass(t.game)+'">'+gameShort(t.game)+'</span></td>'+
+        '<td><b>'+esc(t.item)+'</b><div style="color:var(--faint);font-size:11.5px">'+esc(t.note||'')+'</div></td>'+
+        '<td class="r"><b style="color:var(--expense)">'+fmt(t.amount)+'</b></td>'+
+        '<td class="r"><button class="del" onclick="BD.del(\'exp\',\''+t.id+'\')">✕</button></td></tr>';
+    });
+    return h+'</tbody>';
+  }
+  function emptyRow(cols,msg){return '<tbody><tr><td colspan="'+cols+'"><div class="empty">'+msg+'</div></td></tr></tbody>';}
+
+  // charts
+  function drawBars(){
+    var games=scope==='all'?['Tales Runner','WarZ']:[scope];
+    var rows=games.map(function(g){
+      var inc=sum(data.income.filter(t=>t.game===g)),exp=sum(data.expense.filter(t=>t.game===g));
+      return {g:g,inc:inc,exp:exp};
+    });
+    var max=Math.max(1,...rows.map(r=>Math.max(r.inc,r.exp)));
+    var h='';
+    rows.forEach(function(r){
+      h+='<div class="gamerow" style="display:block;border-top:0;padding:8px 0 12px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:13px"><span><span class="tag '+gameClass(r.g)+'">'+gameShort(r.g)+'</span></span></div>'+
+        '<div style="display:flex;align-items:center;gap:9px;margin-top:8px"><span style="width:54px;color:var(--muted);font-size:11.5px">รายรับ</span>'+
+        '<div class="barwrap" style="flex:1"><i style="width:'+(r.inc/max*100)+'%;background:var(--income)"></i></div><b style="width:92px;text-align:right;font-size:12.5px">'+fmt(r.inc)+'</b></div>'+
+        '<div style="display:flex;align-items:center;gap:9px;margin-top:7px"><span style="width:54px;color:var(--muted);font-size:11.5px">รายจ่าย</span>'+
+        '<div class="barwrap" style="flex:1"><i style="width:'+(r.exp/max*100)+'%;background:var(--expense)"></i></div><b style="width:92px;text-align:right;font-size:12.5px">'+fmt(r.exp)+'</b></div></div>';
+    });
+    document.getElementById('barChart').innerHTML=h;
+  }
+  function drawDonut(c){
+    var tot=c.cash+c.barter||1,frac=c.cash/tot,R=58,Cc=2*Math.PI*R,off=Cc*(1-frac);
+    var svg='<svg width="170" height="170" viewBox="0 0 150 150">'+
+      '<circle cx="75" cy="75" r="58" fill="none" stroke="var(--barter)" stroke-width="20"/>'+
+      '<circle cx="75" cy="75" r="58" fill="none" stroke="var(--cash)" stroke-width="20" stroke-dasharray="'+Cc+'" stroke-dashoffset="'+off+'" transform="rotate(-90 75 75)" stroke-linecap="round"/>'+
+      '<text x="75" y="70" text-anchor="middle" fill="var(--ink)" font-family="Kanit" font-size="22" font-weight="700">'+(frac*100).toFixed(0)+'%</text>'+
+      '<text x="75" y="90" text-anchor="middle" fill="var(--faint)" font-size="11">Cash</text></svg>';
+    document.getElementById('donut').innerHTML=svg;
+  }
+  function drawCollect(c){
+    var tot=c.cash||1,pf=c.paid/tot*100;
+    document.getElementById('collect').innerHTML=
+      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--good)">เก็บแล้ว '+fmt(c.paid)+'</span><span style="color:var(--warn)">ค้างรับ '+fmt(c.unpaid)+'</span></div>'+
+      '<div class="barwrap" style="height:18px"><i style="width:'+pf+'%;background:linear-gradient(90deg,var(--good),#1f9e72)"></i></div>'+
+      '<div style="text-align:center;font-family:Kanit;font-weight:700;font-size:24px;margin-top:14px">'+pf.toFixed(1)+'%<span style="font-size:13px;color:var(--faint);font-weight:500"> ของเงินสดถูกเก็บแล้ว</span></div>';
+  }
+  function drawTop(){
+    var inc=data.income.filter(function(x){return inScope(x.game);});
+    var m={};inc.forEach(function(t){m[t.partner]=(m[t.partner]||0)+(+t.amount||0);});
+    var arr=Object.keys(m).map(k=>({p:k,v:m[k]})).sort((a,b)=>b.v-a.v).slice(0,6);
+    var max=Math.max(1,...arr.map(a=>a.v)),h='';
+    if(!arr.length)h='<div class="empty">ยังไม่มีข้อมูล</div>';
+    arr.forEach(function(a){
+      h+='<div style="padding:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>'+esc(a.p)+'</b><b>'+fmt(a.v)+'</b></div>'+
+        '<div class="barwrap" style="margin-top:5px"><i style="width:'+(a.v/max*100)+'%;background:linear-gradient(90deg,var(--brand),#1d4fb0)"></i></div></div>';
+    });
+    document.getElementById('topPartners').innerHTML=h;
+  }
+  function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  // modal forms
+  function open(kind){
+    var g=scope==='all'?'Tales Runner':scope;
+    var today=new Date().toISOString().slice(0,10);
+    var gsel='<select id="f_game"><option'+(g==='Tales Runner'?' selected':'')+'>Tales Runner</option><option'+(g==='WarZ'?' selected':'')+'>WarZ</option></select>';
+    var m;
+    if(kind==='inc'){
+      m='<h3>＋ บันทึกรายรับ</h3>'+
+        '<div class="row2"><div class="fld"><label>เกม</label>'+gsel+'</div><div class="fld"><label>วันที่</label><input type="date" id="f_date" value="'+today+'"></div></div>'+
+        '<div class="fld"><label>Partner / สปอนเซอร์</label><input id="f_partner" placeholder="เช่น iHAVECPU, P2W"></div>'+
+        '<div class="row2"><div class="fld"><label>ประเภท</label><select id="f_type"><option>Cash</option><option>Barter</option></select></div>'+
+        '<div class="fld"><label>จำนวนเงิน (฿)</label><input type="number" id="f_amount" placeholder="0" min="0"></div></div>'+
+        '<div class="row2"><div class="fld"><label>สถานะ</label><select id="f_status"><option>จ่ายแล้ว</option><option>ค้างจ่าย</option></select></div>'+
+        '<div class="fld"><label>หมายเหตุ</label><input id="f_note" placeholder="(ไม่บังคับ)"></div></div>'+
+        '<div class="mfoot"><button class="btn ghost" onclick="BD.close()">ยกเลิก</button><button class="btn inc" onclick="BD.save(\'inc\')">บันทึกรายรับ</button></div>';
+    }else{
+      m='<h3>－ บันทึกรายจ่าย</h3>'+
+        '<div class="row2"><div class="fld"><label>เกม</label>'+gsel+'</div><div class="fld"><label>วันที่</label><input type="date" id="f_date" value="'+today+'"></div></div>'+
+        '<div class="fld"><label>รายการ</label><input id="f_item" placeholder="เช่น Tournament SOOP"></div>'+
+        '<div class="fld"><label>จำนวนเงิน (฿)</label><input type="number" id="f_amount" placeholder="0" min="0"></div>'+
+        '<div class="fld"><label>หมายเหตุ</label><input id="f_note" placeholder="(ไม่บังคับ)"></div>'+
+        '<div class="mfoot"><button class="btn ghost" onclick="BD.close()">ยกเลิก</button><button class="btn exp" onclick="BD.save(\'exp\')">บันทึกรายจ่าย</button></div>';
+    }
+    document.getElementById('modal').innerHTML=m;
+    document.getElementById('ov').classList.add('on');
+  }
+  function close(){document.getElementById('ov').classList.remove('on');}
+  function save(kind){
+    var amt=+document.getElementById('f_amount').value;
+    if(!amt||amt<=0){alert('กรุณากรอกจำนวนเงิน');return;}
+    var o={game:document.getElementById('f_game').value,date:document.getElementById('f_date').value,
+      amount:amt,note:document.getElementById('f_note').value};
+    if(kind==='inc'){
+      o.partner=document.getElementById('f_partner').value||'(ไม่ระบุ)';
+      o.type=document.getElementById('f_type').value;o.status=document.getElementById('f_status').value;
+      api.addIncome(o,function(d){data=d;close();render();toast('บันทึกรายรับแล้ว ✓');});
+    }else{
+      o.item=document.getElementById('f_item').value||'(ไม่ระบุ)';
+      api.addExpense(o,function(d){data=d;close();render();toast('บันทึกรายจ่ายแล้ว ✓');});
+    }
+  }
+  function del(kind,id){ if(!confirm('ลบรายการนี้?'))return; api.del(kind,id,function(d){data=d;render();toast('ลบแล้ว');}); }
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},1800);}
+
+  // wire toggles
+  document.getElementById('segGame').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    scope=b.dataset.g;
+    document.getElementById('bdapp').style.setProperty('--glow',scope==='Tales Runner'?'16,182,255':(scope==='WarZ'?'236,28,45':'46,111,224'));
+    render();
+  });
+  document.getElementById('segView').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    view=b.dataset.v;
+    document.getElementById('vRecord').classList.toggle('on',view==='record');
+    document.getElementById('vDash').classList.toggle('on',view==='dash');
+  });
+  document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)close();});
+
+  window.BD={open:open,close:close,save:save,del:del};
+  api.getAll(function(d){data=d;render();});
+})();
+</script>
+</body>
+</html>
